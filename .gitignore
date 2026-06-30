@@ -1,6 +1,7 @@
 # --- datasets & large artifacts (never commit) ---
-data/
-!data/.gitkeep
+# Anchored to repo root so it does NOT match the perceptnet/data/ source package.
+/data/
+!/data/.gitkeep
 *.bin
 *.pcd
 *.npy
