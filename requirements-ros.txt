@@ -1,0 +1,15 @@
+# PerceptNet ROS 2 requirements — install ONLY on a ROS 2 Humble box (Ubuntu 22.04).
+#
+# IMPORTANT: rclpy and the ROS message packages are NOT pip-installable. They come
+# from apt and are sourced via /opt/ros/humble/setup.bash. Install them with:
+#
+#   sudo apt install ros-humble-desktop \
+#                    ros-humble-vision-msgs \
+#                    ros-humble-rosbag2 \
+#                    ros-humble-rosbag2-storage-default-plugins
+#
+# Recommended base image: ros:humble-perception (Module 7 / Dockerfile.ros2).
+# Then `pip install -e .` for the perceptnet package itself, plus the pip-only bits below.
+
+# Quaternion / euler conversions for Detection3D orientation.
+transforms3d>=0.4

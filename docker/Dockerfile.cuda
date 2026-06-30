@@ -1,0 +1,29 @@
+# Training / TensorRT image for PerceptNet (NVIDIA GPU).
+#
+# The NGC PyTorch base bundles CUDA + cuDNN + a matching torch build, so we do NOT
+# pip-install torch on top of it (the base owns torch). Build from the repo root:
+#   docker build -f docker/Dockerfile.cuda -t perceptnet:cuda .
+# Run (mount data + experiment outputs as volumes; never bake the 40 GB dataset in):
+#   docker run --gpus all -v $PWD/data:/workspace/data -v $PWD/mlruns:/workspace/mlruns perceptnet:cuda
+FROM nvcr.io/nvidia/pytorch:24.07-py3
+
+WORKDIR /workspace
+
+# System deps for OpenCV / Open3D headless rendering.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libgl1 libglib2.0-0 libgomp1 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install core deps WITHOUT touching the base image's torch/torchvision.
+COPY requirements.txt requirements-gpu.txt ./
+RUN sed -i '/^torch/d; /^torchvision/d' requirements.txt && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -r requirements-gpu.txt
+
+# Install the package itself (without re-resolving deps).
+COPY . /workspace/perceptnet_src
+RUN pip install --no-cache-dir --no-deps -e /workspace/perceptnet_src
+
+ENV PYTHONUNBUFFERED=1
+CMD ["python", "/workspace/perceptnet_src/scripts/train_lidar.py", "--config", \
+     "/workspace/perceptnet_src/configs/kitti_pointpillars.yaml"]

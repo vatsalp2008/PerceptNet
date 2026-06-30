@@ -1,0 +1,31 @@
+# ROS 2 Humble runtime image for the PerceptNet perception node.
+#
+# Base ros:humble-perception bundles vision_msgs and the perception stack (vs. bare
+# ros:humble, which would need half of it hand-installed). rclpy comes from ROS, not
+# pip. Build from the repo root:
+#   docker build -f docker/Dockerfile.ros2 -t perceptnet:ros2 .
+# Run:
+#   docker run --gpus all --net host perceptnet:ros2
+FROM ros:humble-perception
+
+WORKDIR /workspace
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3-pip \
+        ros-humble-vision-msgs \
+        ros-humble-sensor-msgs-py \
+        ros-humble-rosbag2 \
+        libgl1 libglib2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
+
+# CPU torch is fine for the node; for GPU inference use the CUDA base instead.
+COPY requirements.txt requirements-ros.txt ./
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-ros.txt
+
+COPY . /workspace/perceptnet_src
+RUN pip install --no-cache-dir --no-deps -e /workspace/perceptnet_src
+
+# Source ROS on every shell.
+RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
+ENV PYTHONUNBUFFERED=1
+CMD ["bash", "-lc", "source /opt/ros/humble/setup.bash && python3 /workspace/perceptnet_src/scripts/infer_ros.py"]

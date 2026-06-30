@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "perceptnet"
+version = "0.1.0"
+description = "Multi-modal camera + LiDAR fusion perception pipeline for real-time 3D detection and tracking"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Vatsal Patel" }]
+keywords = ["perception", "lidar", "camera", "sensor-fusion", "3d-detection", "kitti", "autonomous-driving"]
+
+# Abstract dependency ranges. Pinned, install-ready lists live in requirements*.txt.
+# The numpy<2.0 ceiling is load-bearing: numba/open3d/opencv ABI breaks on numpy 2.x.
+dependencies = [
+    "numpy>=1.24,<2.0",
+    "scipy>=1.11,<1.13",
+    "torch>=2.2,<3.0",
+    "torchvision>=0.17",
+    "opencv-python>=4.8,<4.11",
+    "open3d>=0.18",
+    "ultralytics>=8.1,<8.3",
+    "onnx>=1.15",
+    "onnxruntime>=1.17",
+    "pyyaml>=6.0",
+    "tqdm>=4.65",
+    "matplotlib>=3.7",
+    "mlflow>=2.10,<3.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov", "hypothesis"]
+# Installed only on the CUDA box; see requirements-gpu.txt.
+gpu = ["onnxruntime-gpu", "pycuda"]
+
+[project.urls]
+Homepage = "https://github.com/vatsalp2008/PerceptNet"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["perceptnet*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "gpu: requires an NVIDIA GPU / CUDA (skipped on CPU-only machines)",
+    "ros: requires a ROS 2 (Humble) environment",
+    "network: downloads weights/data over the network (run with -m network)",
+]
+# Default local run excludes gpu/ros/network; CI on the cloud box drops the filter.
+addopts = "-m 'not gpu and not ros and not network'"

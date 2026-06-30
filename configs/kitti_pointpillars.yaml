@@ -1,0 +1,41 @@
+# PointPillars LiDAR-branch configuration (Module 3).
+dataset:
+  root: data/kitti
+  classes: [Car, Pedestrian, Cyclist]
+
+model:
+  num_point_features: 4
+  voxel_size: [0.16, 0.16, 4.0]
+  pc_range: [0.0, -40.0, -3.0, 70.4, 40.0, 1.0]   # xmin ymin zmin xmax ymax zmax
+  max_points_per_pillar: 100
+  max_pillars: 12000
+  pillar_feat_channels: 64
+  num_classes: 3
+  num_rotations: 2
+  anchor_sizes: [[3.9, 1.6, 1.56], [0.8, 0.6, 1.73], [1.76, 0.6, 1.73]]  # Car, Ped, Cyclist
+  anchor_z: [-1.0, -0.6, -0.6]
+  anchor_rotations: [0.0, 1.5707963]
+
+assigner:
+  pos_iou: 0.6
+  neg_iou: 0.45
+
+loss:
+  cls_weight: 1.0
+  box_weight: 2.0
+  dir_weight: 0.2
+
+train:
+  epochs: 80
+  batch_size: 4            # GPU-memory constrained (spec)
+  optimizer: adam
+  lr: 0.0002
+  scheduler: one_cycle
+  augment: true
+  num_workers: 4
+  checkpoint_dir: checkpoints
+  mlflow_experiment: perceptnet-lidar
+
+eval:
+  iou_thresholds: {Car: 0.7, Pedestrian: 0.5, Cyclist: 0.5}
+  metric: "3d"

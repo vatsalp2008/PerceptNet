@@ -1,0 +1,38 @@
+# PerceptNet services. Datasets and experiment outputs are mounted as volumes —
+# never baked into images. Requires the NVIDIA Container Toolkit for GPU access.
+services:
+  train:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cuda
+    image: perceptnet:cuda
+    volumes:
+      - ./data:/workspace/data
+      - ./mlruns:/workspace/mlruns
+      - ./checkpoints:/workspace/checkpoints
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    # override at runtime, e.g.: docker compose run train python scripts/evaluate.py
+    command: ["python", "/workspace/perceptnet_src/scripts/train_lidar.py"]
+
+  ros2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ros2
+    image: perceptnet:ros2
+    network_mode: host
+    volumes:
+      - ./data:/workspace/data
+      - ./checkpoints:/workspace/checkpoints
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

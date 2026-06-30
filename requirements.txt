@@ -1,0 +1,39 @@
+# PerceptNet core requirements (installs clean on macOS arm64 / Python 3.11, CPU/MPS).
+#
+# Install:  python3.11 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+# Or, preferred:  pip install -e ".[dev]"
+#
+# CUDA-only and ROS-only dependencies are intentionally NOT here:
+#   - GPU (TensorRT, pycuda, onnxruntime-gpu)  -> requirements-gpu.txt
+#   - ROS 2 (rclpy is apt-only, vision_msgs)   -> requirements-ros.txt
+
+# --- numerics ---
+# numpy<2.0 is load-bearing: the 2.x ABI break crashes numba / older open3d / opencv.
+numpy>=1.24,<2.0
+scipy>=1.11,<1.13
+
+# --- deep learning ---
+torch>=2.2,<3.0
+torchvision>=0.17
+
+# --- camera / vision ---
+opencv-python>=4.8,<4.11
+ultralytics>=8.1,<8.3          # pinned tight: feature-tap internals churn across minors
+
+# --- point cloud + 3D viz ---
+open3d>=0.18                   # first reliable macOS arm64 wheels
+
+# --- model export / inference ---
+onnx>=1.15
+onnxruntime>=1.17              # CPU build; do NOT also install onnxruntime-gpu (conflict)
+
+# --- experiment tracking + io ---
+mlflow>=2.10,<3.0
+pyyaml>=6.0
+tqdm>=4.65
+matplotlib>=3.7
+
+# --- dev / test ---
+pytest>=8.0
+pytest-cov
+hypothesis

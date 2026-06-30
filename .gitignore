@@ -1,0 +1,57 @@
+# --- datasets & large artifacts (never commit) ---
+data/
+!data/.gitkeep
+*.bin
+*.pcd
+*.npy
+*.npz
+# ...but the committed mini-KITTI fixture must be tracked (tests run with zero download)
+!tests/fixtures/**/*.bin
+
+# Model weights / engines / exports
+*.pth
+*.pt
+!tests/fixtures/**/*.pt          # allow tiny committed fixture weights if ever needed
+*.onnx
+*.trt
+*.engine
+weights/
+checkpoints/
+
+# Experiment tracking
+mlruns/
+mlartifacts/
+runs/
+outputs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+.hypothesis/
+
+# Environments
+.venv/
+venv/
+env/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local Claude Code settings (machine-specific)
+.claude/settings.local.json
+
+# ROS 2 build artifacts
+ros2/install/
+ros2/build/
+ros2/log/

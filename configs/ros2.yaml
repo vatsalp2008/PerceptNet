@@ -1,0 +1,16 @@
+# ROS 2 node parameters (Module 7). Loaded by perceptnet.launch.py.
+/perceptnet_node:
+  ros__parameters:
+    confidence_threshold: 0.5
+    nms_iou_threshold: 0.1
+    max_track_age: 3
+    use_tensorrt: true
+    modality: "fusion"          # fusion | camera_only | lidar_only
+    lidar_checkpoint: "checkpoints/pointpillars.pth"
+    fusion_checkpoint: "checkpoints/fusion.pth"
+    # topics
+    camera_topic: "/sensor/camera/image_raw"
+    lidar_topic: "/sensor/lidar/points"
+    objects_topic: "/perception/objects"
+    markers_topic: "/perception/markers"
+    camera_debug_topic: "/perception/camera_debug"

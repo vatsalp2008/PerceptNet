@@ -1,0 +1,19 @@
+# PerceptNet GPU requirements — install ONLY on the CUDA box (Linux x86_64, NVIDIA GPU).
+# These have no macOS wheels and must never appear in requirements.txt.
+#
+# Recommended base: nvcr.io/nvidia/pytorch (CUDA + cuDNN + torch already baked in).
+# Do NOT pip-install torch on top of the NGC base — the base owns torch.
+#
+# Install:  pip install -r requirements-gpu.txt
+#   (and ensure core deps are present, EXCEPT swap onnxruntime -> onnxruntime-gpu below)
+
+# TensorRT engine build + INT8 calibration (Module 6).
+tensorrt==8.6.*
+
+# Host<->device memory + engine execution.
+pycuda
+cuda-python
+
+# GPU inference. This REPLACES the CPU onnxruntime from requirements.txt.
+# Never install both onnxruntime and onnxruntime-gpu into the same environment.
+onnxruntime-gpu>=1.17

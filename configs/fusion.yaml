@@ -1,0 +1,30 @@
+# ROI fusion-model configuration (Module 4). Trains the fusion head on top of a
+# trained LiDAR branch + a (frozen or fine-tuned) YOLO v8 camera branch.
+camera:
+  weights: yolov8m.pt        # spec: medium variant; CameraBranch default is yolov8n for fast smoke
+  conf_threshold: 0.25
+  fpn_stride: 8              # FPN level P3 stride, for ROIAlign spatial_scale
+
+lidar_checkpoint: checkpoints/pointpillars.pth
+
+fusion:
+  lidar_channels: 384
+  image_channels: 64
+  roi_size: 7
+  lidar_feat_dim: 128
+  image_feat_dim: 64
+  num_classes: 3
+
+train:
+  epochs: 40
+  batch_size: 4
+  optimizer: adamw
+  lr: 0.001
+  scheduler: cosine
+  freeze_lidar: true         # train fusion head first; optionally unfreeze later
+  checkpoint_dir: checkpoints
+  mlflow_experiment: perceptnet-fusion
+
+# Modality robustness study scenarios (evaluated post-training).
+robustness:
+  scenarios: [full_fusion, camera_dropout, lidar_drop_50, lidar_drop_90]
