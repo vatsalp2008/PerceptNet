@@ -35,4 +35,14 @@ jobs:
       - name: Run tests
         # pyproject addopts already excludes gpu/ros/network markers,
         # so CI needs no CUDA, no ROS, and no network weight downloads.
-        run: pytest -ra
+        run: |
+          set +e
+          pytest -ra -p no:cacheprovider > pytest_out.txt 2>&1
+          code=$?
+          cat pytest_out.txt
+          if [ $code -ne 0 ]; then
+            { echo "### pytest failed (exit $code)"; echo '```'; tail -60 pytest_out.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            msg=$(tail -50 pytest_out.txt | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\n/%0A/g;s/\r//g')
+            echo "::error title=pytest (exit $code)::$msg"
+          fi
+          exit $code
