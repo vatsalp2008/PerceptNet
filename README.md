@@ -1,5 +1,7 @@
 # PerceptNet
 
+[![CI](https://github.com/vatsalp2008/PerceptNet/actions/workflows/ci.yml/badge.svg)](https://github.com/vatsalp2008/PerceptNet/actions/workflows/ci.yml)
+
 **Production-grade multi-modal perception pipeline fusing camera and LiDAR for real-time 3D object detection and tracking.**
 
 PerceptNet fuses RGB camera and LiDAR point clouds to perform 3D object detection, classification, and
@@ -27,6 +29,23 @@ across time with a 3D Kalman filter + Hungarian association (AB3DMOT).
 
 ## Architecture
 
+```mermaid
+flowchart TD
+    IMG[RGB image] --> CAM["Camera Branch<br/>YOLO v8 + FPN"]
+    PC[LiDAR point cloud] --> LID["LiDAR Branch<br/>Pillarize → PointPillars BEV"]
+    CAM -->|FPN features| FUSE["Sensor Fusion<br/>ROI-based late fusion<br/>project → ROIAlign → MLP"]
+    LID -->|3D proposals + BEV feats| FUSE
+    FUSE --> DET["3D detections<br/>class · box · heading · conf"]
+    DET --> TRK["AB3DMOT tracker<br/>3D Kalman + Hungarian"]
+    TRK --> ROS["ROS 2<br/>/perception/objects"]
+    TRK --> VIZ["Open3D / image viz"]
+    TRK --> EVAL["KITTI mAP + MOTA"]
+    DET --> TRT["TensorRT FP16/INT8"]
+```
+
+<details>
+<summary>Text version (same flow)</summary>
+
 ```
 [KITTI / nuScenes]
    ├── RGB frames ──► Camera Branch: YOLO v8 + FPN ──► 2D dets + image feature maps
@@ -48,6 +67,8 @@ across time with a 3D Kalman filter + Hungarian association (AB3DMOT).
    ROS 2 /perception/objects   Open3D / image viz    KITTI mAP + MOTA eval
                                                       TensorRT optimized inference
 ```
+
+</details>
 
 Full specification: [`Project_Perception_MultiModal_Fusion.md`](Project_Perception_MultiModal_Fusion.md).
 
