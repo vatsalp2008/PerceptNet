@@ -29,6 +29,7 @@ jobs:
           # satisfies the torch pin so the editable install won't fetch the CUDA build.
           pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -e ".[dev]"
+          pip install pytest-github-actions-annotate-failures
           pip list | grep -iE "^(torch|torchvision|numpy|scipy|onnxruntime|opencv|open3d|ultralytics) " || true
 
       - name: Run tests
