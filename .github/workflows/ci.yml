@@ -24,9 +24,14 @@ jobs:
       - name: Install package
         run: |
           python -m pip install --upgrade pip
+          # CPU-only torch: the runner has no GPU, and the default Linux wheel pulls
+          # multi-GB nvidia-* CUDA packages that waste disk/time. Installing it first
+          # satisfies the torch pin so the editable install won't fetch the CUDA build.
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           pip install -e ".[dev]"
+          pip list | grep -iE "^(torch|torchvision|numpy|scipy|onnxruntime|opencv|open3d|ultralytics) " || true
 
       - name: Run tests
         # pyproject addopts already excludes gpu/ros/network markers,
         # so CI needs no CUDA, no ROS, and no network weight downloads.
-        run: pytest
+        run: pytest -ra
